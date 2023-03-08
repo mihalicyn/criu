@@ -30,6 +30,7 @@ fi
 if ! "$criu" restore --skip-file-rwx-check --restore-detached --shell-job --verbosity=4 --log-file=restore.log
 then
     echo "Failed to restore process with reference to a file who's r/w/x perms changed when --skip-file-rwx-check option was used"
+    cat restore.log
     echo FAIL
     exit 1
 fi
