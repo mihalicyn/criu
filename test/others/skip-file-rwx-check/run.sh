@@ -19,6 +19,7 @@ then
     echo FAIL
     exit 1
 fi
+cat dump.log
 chmod -w testfile
 if "$criu" restore --restore-detached --shell-job --verbosity=4 --log-file=restore-expected-fail.log
 then

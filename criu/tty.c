@@ -1662,6 +1662,7 @@ static int collect_one_tty_info_entry(void *obj, ProtobufCMessage *msg, struct c
 	 * can't be used. Most likely they appear if a user has
 	 * dumped program when it was closing a peer.
 	 */
+	pr_debug("tty_test_and_set: %d %d\n", is_pty(driver), !!tie->termios);
 	if (is_pty(driver) && tie->termios)
 		tty_test_and_set(tie->id, tty_active_pairs);
 
@@ -1913,8 +1914,10 @@ static int dump_tty_info(int lfd, u32 id, const struct fd_parms *p, struct tty_d
 	 * just write out minimum information we can
 	 * gather.
 	 */
-	if (pti->hangup)
+	if (pti->hangup) {
+		pr_debug("hanged terminal \n");
 		return pb_write_one(img_from_set(glob_imgset, CR_FD_TTY_INFO), &info, PB_TTY_INFO);
+	}
 
 	/*
 	 * Now trace the paired/unpaired ttys. For example

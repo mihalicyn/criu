@@ -39,7 +39,7 @@ if pid == 0:
 
 pw.close()
 pr.read(1)
-
+print(sys.version)
 cmd = [cr_bin, "dump", "-j", "-t", str(pid), "-D", "work", "-v"]
 print("Run: %s" % " ".join(cmd))
 ret = subprocess.Popen(cmd).wait()

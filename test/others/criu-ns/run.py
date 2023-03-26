@@ -33,13 +33,17 @@ def test_dump_and_restore_with_shell_job():
     pr = os.fdopen(p[0], "r")
     pw = os.fdopen(p[1], "w")
 
+    os.system("ls -la /proc/" + str(os.getpid()) + "/fd")
+
     pid = os.fork()
     if pid == 0:
         m.close()
         os.setsid()
+        os.system("ls -la /proc/" + str(os.getpid()) + "/fd")
         os.dup2(s.fileno(), 0)
         os.dup2(s.fileno(), 1)
         os.dup2(s.fileno(), 2)
+        os.system("ls -la /proc/" + str(os.getpid()) + "/fd")
         fcntl.ioctl(s.fileno(), termios.TIOCSCTTY, 1)
         pr.close()
         pw.close()
@@ -51,7 +55,7 @@ def test_dump_and_restore_with_shell_job():
 
     pw.close()
     pr.read(1)
-    cmd = [CRIU_NS, "dump", "-D", "dumpdir", "-v", "--shell-job",
+    cmd = [CRIU_NS, "dump", "-D", "dumpdir", "-v4", "--shell-job",
            "-t", str(pid), "--criu-binary", CRIU_BIN]
     ret = subprocess.Popen(cmd).wait()
     if ret != 0:
@@ -62,16 +66,17 @@ def test_dump_and_restore_with_shell_job():
     pid = os.fork()
     if pid == 0:
         os.setsid()
-        fcntl.ioctl(fd_m.fileno(), termios.TIOCSCTTY, 1)
-        cmd = [CRIU_NS, "restore", "-D", "dumpdir", "-v",
+        #fcntl.ioctl(fd_m.fileno(), termios.TIOCSCTTY, 1)
+        cmd = [CRIU_NS, "restore", "-D", "dumpdir", "-v4",
                "--shell-job", "--criu-binary", CRIU_BIN]
         ret = subprocess.Popen(cmd).wait()
         if ret != 0:
             sys.exit(ret)
-        os._exit(0)
+
+        sys.exit(0)
 
     os.waitpid(pid, 0)
-
+    #fcntl.ioctl(0, termios.TIOCSCTTY, 1)
 
 def test_dump_and_restore_without_shell_job(restore_detached=False):
     check_dumpdir()
@@ -110,12 +115,14 @@ def test_dump_and_restore_without_shell_job(restore_detached=False):
         ret = subprocess.Popen(cmd, start_new_session=True).wait()
         if ret != 0:
             sys.exit(ret)
-        os._exit(0)
+        #os._exit(0)
+        sys.exit(0)
 
     os.waitpid(pid, 0)
 
 
 if __name__ == "__main__":
+    print(sys.version)
     test_dump_and_restore_with_shell_job()
     #test_dump_and_restore_without_shell_job()
     #test_dump_and_restore_without_shell_job(restore_detached=True)

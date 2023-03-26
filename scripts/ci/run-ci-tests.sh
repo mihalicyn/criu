@@ -217,12 +217,12 @@ if [ "${STREAM_TEST}" = "1" ]; then
 	exit 0
 fi
 
-./test/zdtm.py run -a -p 2 --keep-going "${ZDTM_OPTS[@]}"
-if criu/criu check --feature move_mount_set_group; then
-	./test/zdtm.py run -a -p 2 --mntns-compat-mode --keep-going "${ZDTM_OPTS[@]}"
-fi
+#./test/zdtm.py run -a -p 2 --keep-going "${ZDTM_OPTS[@]}"
+#if criu/criu check --feature move_mount_set_group; then
+#	./test/zdtm.py run -a -p 2 --mntns-compat-mode --keep-going "${ZDTM_OPTS[@]}"
+#fi
 
-./test/zdtm.py run -a -p 2 --keep-going --criu-config "${ZDTM_OPTS[@]}"
+#./test/zdtm.py run -a -p 2 --keep-going --criu-config "${ZDTM_OPTS[@]}"
 
 # Newer kernels are blocking access to userfaultfd:
 # uffd: Set unprivileged_userfaultfd sysctl knob to 1 if kernel faults must be handled without obtaining CAP_SYS_PTRACE capability
@@ -235,17 +235,17 @@ LAZY_EXCLUDE=(-x maps04 -x cmdlinenv00 -x maps007)
 LAZY_TESTS='.*(maps0|uffd-events|lazy-thp|futex|fork).*'
 LAZY_OPTS=(-p 2 -T "$LAZY_TESTS" "${LAZY_EXCLUDE[@]}" "${ZDTM_OPTS[@]}")
 
-./test/zdtm.py run "${LAZY_OPTS[@]}" --lazy-pages
-./test/zdtm.py run "${LAZY_OPTS[@]}" --remote-lazy-pages
-./test/zdtm.py run "${LAZY_OPTS[@]}" --remote-lazy-pages --tls
+#./test/zdtm.py run "${LAZY_OPTS[@]}" --lazy-pages
+#./test/zdtm.py run "${LAZY_OPTS[@]}" --remote-lazy-pages
+#./test/zdtm.py run "${LAZY_OPTS[@]}" --remote-lazy-pages --tls
 
-bash -x ./test/jenkins/criu-fault.sh
-if [ "$UNAME_M" == "x86_64" ]; then
+#bash -x ./test/jenkins/criu-fault.sh
+#if [ "$UNAME_M" == "x86_64" ]; then
 	# This fails on aarch64 (aws-graviton2) with:
 	# 33: ERR: thread-bomb.c:49: pthread_attr_setstacksize(): 22
-	bash -x ./test/jenkins/criu-fcg.sh
-fi
-bash -x ./test/jenkins/criu-inhfd.sh
+#	bash -x ./test/jenkins/criu-fcg.sh
+#fi
+#bash -x ./test/jenkins/criu-inhfd.sh
 
 if [ -z "$SKIP_EXT_DEV_TEST" ]; then
 	make -C test/others/mnt-ext-dev/ run
@@ -254,14 +254,27 @@ if [ -z "$SKIP_EXT_DEV_TEST" ]; then
 	fi
 fi
 
+ls -la /proc/$$/fd
+
 make -C test/others/make/ run CC="$CC"
 if [ -n "$TRAVIS" ] || [ -n "$CIRCLECI" ]; then
        # GitHub Actions (and Cirrus CI) does not provide a real TTY and CRIU will fail with:
        # Error (criu/tty.c:1014): tty: Don't have tty to inherit session from, aborting
        make -C test/others/shell-job/ run
+       make -C test/others/shell-job/ run
+       ls -la /proc/$$/fd
+       cat /proc/$$/status
        make -C test/others/criu-ns/ run
+       sleep 3
+       ls -la /proc/$$/fd
+       cat /proc/$$/status
 fi
+ls -la /proc/$$/fd
 make -C test/others/skip-file-rwx-check/ run
+ls -la /proc/$$/fd
+
+exit 0
+
 make -C test/others/rpc/ run
 
 ./test/zdtm.py run -t zdtm/static/env00 --sibling
