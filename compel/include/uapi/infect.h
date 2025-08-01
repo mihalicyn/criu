@@ -209,4 +209,12 @@ static inline int parasite_setup_shstk(struct parasite_ctl *ctl,
 #define parasite_setup_shstk parasite_setup_shstk
 #endif
 
+#ifndef compel_gcs_enabled
+static inline bool compel_gcs_enabled(struct user_gcs *gcs)
+{
+       return false;
+}
+#define compel_gcs_enabled compel_gcs_enabled
+#endif
+
 #endif

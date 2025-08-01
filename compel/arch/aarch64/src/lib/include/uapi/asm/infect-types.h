@@ -19,6 +19,7 @@ typedef struct user_pt_regs user_regs_struct_t;
 
 struct user_fpregs_struct {
        struct user_fpsimd_state fpstate;
+       struct user_gcs gcs;
 };
 typedef struct user_fpregs_struct user_fpregs_struct_t;
 
@@ -42,5 +43,17 @@ typedef struct user_fpregs_struct user_fpregs_struct_t;
 		(void)compat;   \
 		__NR_##syscall; \
 	})
+
+/*
+ * GCS (Guarded Control Stack)
+ */
+struct parasite_ctl;
+struct user_gcs {
+    __u64 features_enabled;
+    __u64 features_locked;
+    __u64 gcspr_el0;
+};
+extern bool __compel_gcs_enabled(struct user_gcs *gcs);
+#define compel_gcs_enabled __compel_gcs_enabled
 
 #endif /* UAPI_COMPEL_ASM_TYPES_H__ */
