@@ -43,10 +43,10 @@ int sigreturn_prep_regs_plain(struct rt_sigframe *sigframe, user_regs_struct_t *
 	sigframe->uc.uc_mcontext.pc = regs->pc;
 	sigframe->uc.uc_mcontext.pstate = regs->pstate;
 
-	memcpy(fpsimd->vregs, fpregs->vregs, 32 * sizeof(__uint128_t));
+	memcpy(fpsimd->vregs, fpregs->fpstate.vregs, 32 * sizeof(__uint128_t));
 
-	fpsimd->fpsr = fpregs->fpsr;
-	fpsimd->fpcr = fpregs->fpcr;
+	fpsimd->fpsr = fpregs->fpstate.fpsr;
+	fpsimd->fpcr = fpregs->fpstate.fpcr;
 
 	fpsimd->head.magic = FPSIMD_MAGIC;
 	fpsimd->head.size = sizeof(*fpsimd);
@@ -74,8 +74,8 @@ int compel_get_task_regs(pid_t pid, user_regs_struct_t *regs, user_fpregs_struct
 		goto err;
 	}
 
-	iov.iov_base = fpsimd;
-	iov.iov_len = sizeof(*fpsimd);
+	iov.iov_base = &fpsimd->fpstate;
+	iov.iov_len = sizeof(fpsimd->fpstate);
 	if ((ret = ptrace(PTRACE_GETREGSET, pid, NT_PRFPREG, &iov))) {
 		pr_perror("Failed to obtain FPU registers for %d", pid);
 		goto err;
