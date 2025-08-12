@@ -83,11 +83,6 @@ int compel_get_task_regs(pid_t pid, user_regs_struct_t *regs, user_fpregs_struct
 	struct iovec iov;
 	int ret;
 
-	struct iovec gcs_iov = {
-			.iov_base = &fpsimd->gcs,
-			.iov_len = sizeof(fpsimd->gcs),
-	};
-
 	pr_info("Dumping GP/FPU registers for %d\n", pid);
 
 	iov.iov_base = regs;
@@ -106,7 +101,9 @@ int compel_get_task_regs(pid_t pid, user_regs_struct_t *regs, user_fpregs_struct
 
 	memset(&fpsimd->gcs, 0, sizeof(fpsimd->gcs));
 
-	if (ptrace(PTRACE_GETREGSET, pid, NT_ARM_GCS, &gcs_iov) == 0) {
+	iov.iov_base = &fpsimd->gcs;
+	iov.iov_len = sizeof(fpsimd->gcs);
+	if (ptrace(PTRACE_GETREGSET, pid, NT_ARM_GCS, &iov) == 0) {
 		pr_info("gcs: GCSPR_EL0 for %d: 0x%llx, features: 0x%llx\n",
 			pid, fpsimd->gcs.gcspr_el0, fpsimd->gcs.features_enabled);
 
@@ -135,6 +132,26 @@ int compel_set_task_ext_regs(pid_t pid, user_fpregs_struct_t *ext_regs)
 	}
 	return 0;
 }
+
+int compel_set_task_gcs_regs(pid_t pid, user_fpregs_struct_t *ext_regs)
+{
+	struct iovec iov;
+
+	pr_info("gcs: restoring GCS registers for %d\n", pid);
+	pr_info("gcs: restoring GCS: gcspr=%llx features=%llx\n",
+			ext_regs->gcs.gcspr_el0, ext_regs->gcs.features_enabled);
+
+	iov.iov_base = &ext_regs->gcs;
+	iov.iov_len  = sizeof(ext_regs->gcs);
+
+	if (ptrace(PTRACE_SETREGSET, pid, NT_ARM_GCS, &iov)) {
+		pr_perror("gcs: Failed to set GCS registers for %d", pid);
+		return -1;
+	}
+
+	return 0;
+}
+
 
 int compel_syscall(struct parasite_ctl *ctl, int nr, long *ret, unsigned long arg1, unsigned long arg2,
 		   unsigned long arg3, unsigned long arg4, unsigned long arg5, unsigned long arg6)

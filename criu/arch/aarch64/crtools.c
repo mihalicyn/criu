@@ -12,6 +12,7 @@
 #include "common/compiler.h"
 #include <compel/ptrace.h>
 #include "asm/dump.h"
+#include "asm/gcs-types.h"
 #include "protobuf.h"
 #include "images/core.pb-c.h"
 #include "images/creds.pb-c.h"
@@ -172,7 +173,7 @@ int save_task_regs(pid_t pid, void *x, user_regs_struct_t *regs, user_fpregs_str
 		return -1;
 
 	/* Save the GCS state */
-	if (ptrace(PTRACE_GETREGSET, pid, (void *)0x410, &gcs_iov) < 0) {
+	if (ptrace(PTRACE_GETREGSET, pid, NT_ARM_GCS, &gcs_iov) < 0) {
 		pr_perror("Failed to get GCS for %d", pid);
 		return -1;
 	}
