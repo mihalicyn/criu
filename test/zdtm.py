@@ -691,15 +691,11 @@ class zdtm_test:
             subprocess.check_call(["make", "-C", "cuda-checkpoint/"])
         if 'rootless' in opts and opts['rootless']:
             return
-        subprocess.check_call(
-            ["flock", "zdtm_mount_cgroups.lock", "./zdtm_mount_cgroups", str(uuid)])
 
     @staticmethod
     def cleanup():
         if 'rootless' in opts and opts['rootless']:
             return
-        subprocess.check_call(
-            ["flock", "zdtm_mount_cgroups.lock", "./zdtm_umount_cgroups", str(uuid)])
 
 
 def load_module_from_file(name, path):

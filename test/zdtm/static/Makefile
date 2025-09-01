@@ -627,6 +627,7 @@ socket-tcp4v6-local:	CFLAGS += -D ZDTM_TCP_LOCAL -D ZDTM_IPV4V6
 socket-tcp-local:	CFLAGS += -D ZDTM_TCP_LOCAL
 socket-tcp-ipt-nfconntrack: CFLAGS += -D ZDTM_TCP_LOCAL -DZDTM_IPT_CONNTRACK
 socket-tcp-nft-nfconntrack: CFLAGS += -D ZDTM_TCP_LOCAL -DZDTM_NFT_CONNTRACK
+env00:		CFLAGS += -mshstk
 socket_listen6:		CFLAGS += -D ZDTM_IPV6
 socket_listen4v6:	CFLAGS += -D ZDTM_IPV4V6
 socket-tcp6-closed:	CFLAGS += -D ZDTM_IPV6

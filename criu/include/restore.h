@@ -38,4 +38,16 @@ static inline int arch_shstk_trampoline(struct pstree_item *item, CoreEntry *cor
 #define arch_shstk_trampoline arch_shstk_trampoline
 #endif
 
+#ifndef shstk_restorer_stack_size
+static always_inline long shstk_restorer_stack_size() { return 0; }
+#endif
+
+#ifndef shstk_set_restorer_stack
+static always_inline long shstk_set_restorer_stack(struct rst_shstk_info *gcs, void *ptr) { return 0; }
+#endif
+
+#ifndef shstk_set_restorer_stack
+static always_inline void shstk_set_restorer_stack(struct rst_shstk_info *info, void *ptr) {}
+#endif
+
 #endif

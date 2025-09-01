@@ -265,16 +265,16 @@ int kdat_has_shstk(void)
 {
 	unsigned long features;
 
-	if (!compel_cpu_has_feature(X86_FEATURE_SHSTK))
+	if (!compel_cpu_has_feature(X86_FEATURE_SHSTK)) {
+		pr_err("====\n");
 		return 0;
+	}
 
 	if (syscall(__NR_arch_prctl, ARCH_SHSTK_STATUS, &features)) {
-		/* kernels that don't support shadow stack return -EINVAL */
-		if (errno == EINVAL)
-			return 0;
 		pr_perror("Cannot get shadow stack status");
 		return 1;
 	}
 
+	pr_err("===== %lx\n", features);
 	return !!(features & ARCH_SHSTK_SHSTK);
 }

@@ -66,6 +66,9 @@ endif
         export PKG_CONFIG_PATH
 endif
 
+export CFLAGS += -mshstk
+export LDFLAGS += -mshstk
+
 define pkg-libs
         $(shell PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)" $(PKG_CONFIG) --libs $(1))
 endef

@@ -1165,6 +1165,7 @@ static int kerndat_has_shstk(void)
 		return ret;
 	}
 
+	pr_err("%d\n", ret);
 	kdat.has_shstk = !!ret;
 	return 0;
 }
